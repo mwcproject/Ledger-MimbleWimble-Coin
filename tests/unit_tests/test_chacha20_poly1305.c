@@ -4,7 +4,6 @@
 #include <stddef.h>
 #include <cmocka.h>
 #include "chacha20_poly1305.h"
-#include "common.h"
 
 
 // Constants
@@ -71,130 +70,55 @@ int main(void) {
 // Test encrypt
 void testEncrypt(void **state) {
 
-	// Begin try
-	BEGIN_TRY {
-
-		// Try
-		TRY {
-
-			// Initialize ChaCha20 Poly1305 state
-			ChaCha20Poly1305State chaCha20Poly1305State;
-			initializeChaCha20Poly1305(&chaCha20Poly1305State, KEY, NONCE, ADDITIONAL_AUTHENTICATED_DATA, sizeof(ADDITIONAL_AUTHENTICATED_DATA), COUNTER, NULL);
-			
-			// Encrypt the data
-			uint8_t encryptedData[sizeof(DATA)];
-			encryptChaCha20Poly1305Data(&chaCha20Poly1305State, encryptedData, DATA, sizeof(DATA));
-			
-			// Assert encrypted data is correct
-			assert_memory_equal(encryptedData, ENCRYPTED_DATA, sizeof(ENCRYPTED_DATA));
-			
-			// Get tag
-			uint8_t tag[POLY1305_TAG_SIZE];
-			getChaCha20Poly1305Tag(&chaCha20Poly1305State, tag);
-			
-			// Assert tag is correct
-			assert_memory_equal(tag, TAG, sizeof(TAG));
-		}
-
-		// Catch all errors
-		CATCH_ALL {
-
-			// Close try
-			CLOSE_TRY;
-
-			// Fail test
-			assert_true(false);
-		}
-
-		// Finally
-		FINALLY {
-		}
-	}
-
-	// End try
-	END_TRY;
+	// Initialize ChaCha20 Poly1305 state
+	struct ChaCha20Poly1305State chaCha20Poly1305State;
+	initializeChaCha20Poly1305(&chaCha20Poly1305State, KEY, NONCE, ADDITIONAL_AUTHENTICATED_DATA, sizeof(ADDITIONAL_AUTHENTICATED_DATA), COUNTER, NULL);
+	
+	// Encrypt the data
+	uint8_t encryptedData[sizeof(DATA)];
+	encryptChaCha20Poly1305Data(&chaCha20Poly1305State, encryptedData, DATA, sizeof(DATA));
+	
+	// Assert encrypted data is correct
+	assert_memory_equal(encryptedData, ENCRYPTED_DATA, sizeof(ENCRYPTED_DATA));
+	
+	// Get tag
+	uint8_t tag[POLY1305_TAG_SIZE];
+	getChaCha20Poly1305Tag(&chaCha20Poly1305State, tag);
+	
+	// Assert tag is correct
+	assert_memory_equal(tag, TAG, sizeof(TAG));
 }
 
 // Test decrypt
 void testDecrypt(void **state) {
 
-	// Begin try
-	BEGIN_TRY {
-
-		// Try
-		TRY {
-
-			// Initialize ChaCha20 Poly1305 state
-			ChaCha20Poly1305State chaCha20Poly1305State;
-			initializeChaCha20Poly1305(&chaCha20Poly1305State, KEY, NONCE, ADDITIONAL_AUTHENTICATED_DATA, sizeof(ADDITIONAL_AUTHENTICATED_DATA), COUNTER, NULL);
-			
-			// Decrypt the encrypted data
-			uint8_t data[sizeof(ENCRYPTED_DATA)];
-			decryptChaCha20Poly1305Data(&chaCha20Poly1305State, data, ENCRYPTED_DATA, sizeof(ENCRYPTED_DATA));
-			
-			// Assert data is correct
-			assert_memory_equal(data, DATA, sizeof(DATA));
-			
-			// Get tag
-			uint8_t tag[POLY1305_TAG_SIZE];
-			getChaCha20Poly1305Tag(&chaCha20Poly1305State, tag);
-			
-			// Assert tag is correct
-			assert_memory_equal(tag, TAG, sizeof(TAG));
-		}
-
-		// Catch all errors
-		CATCH_ALL {
-
-			// Close try
-			CLOSE_TRY;
-
-			// Fail test
-			assert_true(false);
-		}
-
-		// Finally
-		FINALLY {
-		}
-	}
-
-	// End try
-	END_TRY;
+	// Initialize ChaCha20 Poly1305 state
+	struct ChaCha20Poly1305State chaCha20Poly1305State;
+	initializeChaCha20Poly1305(&chaCha20Poly1305State, KEY, NONCE, ADDITIONAL_AUTHENTICATED_DATA, sizeof(ADDITIONAL_AUTHENTICATED_DATA), COUNTER, NULL);
+	
+	// Decrypt the encrypted data
+	uint8_t data[sizeof(ENCRYPTED_DATA)];
+	decryptChaCha20Poly1305Data(&chaCha20Poly1305State, data, ENCRYPTED_DATA, sizeof(ENCRYPTED_DATA));
+	
+	// Assert data is correct
+	assert_memory_equal(data, DATA, sizeof(DATA));
+	
+	// Get tag
+	uint8_t tag[POLY1305_TAG_SIZE];
+	getChaCha20Poly1305Tag(&chaCha20Poly1305State, tag);
+	
+	// Assert tag is correct
+	assert_memory_equal(tag, TAG, sizeof(TAG));
 }
 
 // Test resulting state
 void testResultingState(void **state) {
 
-	// Begin try
-	BEGIN_TRY {
-
-		// Try
-		TRY {
-
-			// Initialize ChaCha20 Poly1305 state
-			ChaCha20Poly1305State chaCha20Poly1305State;
-			uint32_t resultingState[CHACHA20_STATE_SIZE];
-			initializeChaCha20Poly1305(&chaCha20Poly1305State, KEY, NONCE, ADDITIONAL_AUTHENTICATED_DATA, sizeof(ADDITIONAL_AUTHENTICATED_DATA), COUNTER, resultingState);
-			
-			// Assert resulting state is correct
-			assert_memory_equal(resultingState, RESULTING_STATE, sizeof(RESULTING_STATE));
-		}
-
-		// Catch all errors
-		CATCH_ALL {
-
-			// Close try
-			CLOSE_TRY;
-
-			// Fail test
-			assert_true(false);
-		}
-
-		// Finally
-		FINALLY {
-		}
-	}
-
-	// End try
-	END_TRY;
+	// Initialize ChaCha20 Poly1305 state
+	struct ChaCha20Poly1305State chaCha20Poly1305State;
+	uint32_t resultingState[sizeof(chaCha20Poly1305State.chaCha20OriginalState) / sizeof(chaCha20Poly1305State.chaCha20OriginalState[0])];
+	initializeChaCha20Poly1305(&chaCha20Poly1305State, KEY, NONCE, ADDITIONAL_AUTHENTICATED_DATA, sizeof(ADDITIONAL_AUTHENTICATED_DATA), COUNTER, resultingState);
+	
+	// Assert resulting state is correct
+	assert_memory_equal(resultingState, RESULTING_STATE, sizeof(RESULTING_STATE));
 }

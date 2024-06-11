@@ -4,7 +4,6 @@
 #include <stddef.h>
 #include <cmocka.h>
 #include "mqs.h"
-#include "common.h"
 
 
 // Constants
@@ -42,36 +41,11 @@ int main(void) {
 // Test get MQS address from public key
 void testGetMqsAddressFromPublicKey(void **state) {
 
-	// Begin try
-	BEGIN_TRY {
-
-		// Try
-		TRY {
-
-			// Get address from the public key
-			char address[MQS_ADDRESS_SIZE + sizeof((char)'\0')];
-			getMqsAddressFromPublicKey(address, PUBLIC_KEY);
-			address[MQS_ADDRESS_SIZE] = '\0';
-			
-			// Assert address is correct
-			assert_string_equal(address, ADDRESS);
-		}
-
-		// Catch all errors
-		CATCH_ALL {
-
-			// Close try
-			CLOSE_TRY;
-
-			// Fail test
-			assert_true(false);
-		}
-
-		// Finally
-		FINALLY {
-		}
-	}
-
-	// End try
-	END_TRY;
+	// Get address from the public key
+	char address[MQS_ADDRESS_SIZE + sizeof((char)'\0')];
+	getMqsAddressFromPublicKey(address, PUBLIC_KEY);
+	address[MQS_ADDRESS_SIZE] = '\0';
+	
+	// Assert address is correct
+	assert_string_equal(address, ADDRESS);
 }

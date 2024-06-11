@@ -14,4 +14,3 @@ package-lock.json
 tests/unit_tests/build
 fuzzing/build
 cov-int
-tools/simulate/Simulate Test

@@ -122,6 +122,9 @@ static void useLrGenerator(volatile uint8_t *t0, volatile uint8_t *t1, volatile 
 // Is quadratic residue
 static bool isQuadraticResidue(const uint8_t *component);
 
+// Generator double point scalar multiply
+static void generatorDoublePointScalarMultiply(uint8_t *result, const size_t index, const uint8_t *scalarOne, const uint8_t *scalarTwo);
+
 // Compare big numbers
 static int compareBigNumbers(const uint8_t *firstValue, const uint8_t *secondValue, const size_t valueLength);
 
@@ -2003,7 +2006,7 @@ void bulletproofUpdateCommitment(volatile uint8_t *commitment, const uint8_t *le
 			CX_THROW(cx_hash_no_throw((cx_hash_t *)&hash, 0, (uint8_t *)commitment, CX_SHA256_SIZE, NULL, 0));
 
 			// Set parity to if the part's y components aren't quadratic residue
-			const uint8_t parity = (isQuadraticResidue(&leftPart[PUBLIC_KEY_COMPONENT_SIZE]) ? 0b00000000 : 0b00000010) | (isQuadraticResidue(&rightPart[PUBLIC_KEY_COMPONENT_SIZE]) ? 0b00000000 : 0b00000001);
+			const uint8_t parity = (!isQuadraticResidue(&leftPart[PUBLIC_KEY_COMPONENT_SIZE]) << 1) | !isQuadraticResidue(&rightPart[PUBLIC_KEY_COMPONENT_SIZE]);
 
 			// Add parity to the hash and throw error if it fails
 			CX_THROW(cx_hash_no_throw((cx_hash_t *)&hash, 0, &parity, sizeof(parity), NULL, 0));
@@ -2038,10 +2041,10 @@ void createScalarsFromChaCha20(volatile uint8_t *firstScalar, volatile uint8_t *
 	};
 
 	// Initialize ChaCha20 Poly1305 state
-	volatile ChaCha20Poly1305State chaCha20Poly1305State;
+	volatile struct ChaCha20Poly1305State chaCha20Poly1305State;
 
 	// Initialize ChaCha20 current state
-	volatile uint32_t chaCha20CurrentState[CHACHA20_STATE_SIZE];
+	volatile uint32_t chaCha20CurrentState[ARRAYLEN(chaCha20Poly1305State.chaCha20OriginalState)];
 
 	// Begin try
 	BEGIN_TRY {
@@ -2072,7 +2075,7 @@ void createScalarsFromChaCha20(volatile uint8_t *firstScalar, volatile uint8_t *
 			explicit_bzero((uint32_t *)chaCha20CurrentState, sizeof(chaCha20CurrentState));
 
 			// Clear the ChaCha20 Poly1305 state
-			explicit_bzero((ChaCha20Poly1305State *)&chaCha20Poly1305State, sizeof(chaCha20Poly1305State));
+			explicit_bzero((struct ChaCha20Poly1305State *)&chaCha20Poly1305State, sizeof(chaCha20Poly1305State));
 		}
 	}
 
